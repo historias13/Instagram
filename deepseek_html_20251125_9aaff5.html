@@ -1,0 +1,2245 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        :root {
+            --primary-bg: #ffffff;
+            --secondary-bg: #fafafa;
+            --border-color: #dbdbdb;
+            --text-primary: #262626;
+            --text-secondary: #8e8e8e;
+            --text-tertiary: #c7c7c7;
+            --accent-color: #0095f6;
+            --accent-hover: #0081d6;
+            --like-color: #ed4956;
+            --story-gradient: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.15);
+            --modal-bg: rgba(0,0,0,0.65);
+        }
+        
+        [data-theme="dark"] {
+            --primary-bg: #000000;
+            --secondary-bg: #121212;
+            --border-color: #363636;
+            --text-primary: #ffffff;
+            --text-secondary: #a8a8a8;
+            --text-tertiary: #6a6a6a;
+            --shadow: 0 1px 3px rgba(255,255,255,0.1);
+            --shadow-hover: 0 4px 12px rgba(255,255,255,0.15);
+            --modal-bg: rgba(0,0,0,0.85);
+        }
+        
+        body {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 60px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--primary-bg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .logo {
+            font-size: 26px;
+            font-weight: 600;
+            background: var(--story-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header-icons i {
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+        }
+        
+        .header-icons i:active {
+            transform: scale(0.92);
+        }
+        
+        /* Stories */
+        .stories-container {
+            padding: 16px 0 12px;
+            background: var(--primary-bg);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .stories-scroll {
+            display: flex;
+            gap: 16px;
+            padding: 0 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .stories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .story-item:active {
+            transform: scale(0.95);
+        }
+        
+        .story-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: var(--story-gradient);
+            padding: 2.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .story-avatar.seen {
+            background: var(--border-color);
+        }
+        
+        .story-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--text-secondary);
+            border: 2.5px solid var(--primary-bg);
+            overflow: hidden;
+            font-weight: 500;
+        }
+        
+        .story-username {
+            font-size: 12px;
+            color: var(--text-primary);
+            max-width: 72px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 400;
+        }
+        
+        .add-story {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 22px;
+            height: 22px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            border: 2px solid var(--primary-bg);
+        }
+        
+        /* Posts */
+        .feed-container {
+            padding-bottom: 20px;
+        }
+        
+        .post-card {
+            background-color: var(--primary-bg);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
+        }
+        
+        .post-card:active {
+            transform: scale(0.998);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+        }
+        
+        .post-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--story-gradient);
+            padding: 2px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        
+        .user-avatar:active {
+            transform: scale(0.95);
+        }
+        
+        .user-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: var(--text-secondary);
+            border: 1.5px solid var(--primary-bg);
+            font-weight: 500;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .post-location {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .post-options {
+            font-size: 18px;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        
+        .post-options:active {
+            background-color: rgba(0,0,0,0.08);
+        }
+        
+        [data-theme="dark"] .post-options:active {
+            background-color: rgba(255,255,255,0.08);
+        }
+        
+        .post-image {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        [data-theme="dark"] .post-image {
+            background: linear-gradient(45deg, #2a2a2a, #1a1a1a);
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+        }
+        
+        .action-icons {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+        
+        .action-icons i {
+            font-size: 26px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+        }
+        
+        .action-icons i:active {
+            transform: scale(0.9);
+        }
+        
+        .post-info {
+            padding: 0 16px 12px;
+        }
+        
+        .likes {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .likes-count {
+            font-weight: 600;
+        }
+        
+        .post-description {
+            font-size: 14px;
+            margin-bottom: 6px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .post-tags {
+            color: #00376b;
+            font-size: 14px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+        
+        [data-theme="dark"] .post-tags {
+            color: #8cb4ff;
+        }
+        
+        .comments {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            font-weight: 400;
+        }
+        
+        .timestamp {
+            color: var(--text-tertiary);
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+        }
+        
+        .add-comment {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .comment-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            outline: none;
+            color: var(--text-primary);
+            font-weight: 400;
+            resize: none;
+            max-height: 80px;
+            line-height: 1.4;
+        }
+        
+        .comment-input::placeholder {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .post-comment {
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            flex-shrink: 0;
+        }
+        
+        .post-comment.active {
+            opacity: 1;
+        }
+        
+        .post-comment:active {
+            opacity: 0.7;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--primary-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 14px 0;
+            max-width: 600px;
+            margin: 0 auto;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 999;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+        }
+        
+        .nav-icon:active {
+            transform: scale(0.92);
+        }
+        
+        .nav-icon.active {
+            color: var(--text-primary);
+        }
+        
+        .nav-notification {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--like-color);
+            border-radius: 50%;
+            border: 2px solid var(--primary-bg);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Sections */
+        .search-section, .reels-section, .activity-section, .profile-section, .create-section, .direct-section {
+            display: none;
+        }
+        
+        .active-section {
+            display: block;
+            animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Search Section */
+        .search-container {
+            padding: 16px;
+        }
+        
+        .search-box {
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .search-box:focus-within {
+            border-color: var(--accent-color);
+        }
+        
+        .search-box i {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        .search-box input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 16px;
+            outline: none;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+        
+        .search-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .search-category {
+            padding: 10px 18px;
+            background-color: var(--secondary-bg);
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+            user-select: none;
+        }
+        
+        .search-category:active {
+            transform: scale(0.96);
+        }
+        
+        .search-category.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        .suggested-users {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .user-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            user-select: none;
+        }
+        
+        .user-suggestion:active {
+            background-color: var(--secondary-bg);
+            transform: scale(0.98);
+        }
+        
+        .follow-btn {
+            margin-left: auto;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+        
+        .follow-btn:active {
+            background-color: var(--accent-hover);
+            transform: scale(0.96);
+        }
+        
+        .follow-btn.following {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Activity Section */
+        .activity-container {
+            padding: 16px;
+        }
+        
+        .activity-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+        
+        .activity-tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-secondary);
+            position: relative;
+            font-size: 14px;
+            user-select: none;
+        }
+        
+        .activity-tab:active {
+            opacity: 0.7;
+        }
+        
+        .activity-tab.active {
+            color: var(--text-primary);
+        }
+        
+        .activity-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--text-primary);
+        }
+        
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            user-select: none;
+        }
+        
+        .activity-item:active {
+            background-color: var(--secondary-bg);
+            transform: scale(0.98);
+        }
+        
+        .activity-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            margin-right: 14px;
+            background: var(--story-gradient);
+            padding: 2.5px;
+            flex-shrink: 0;
+        }
+        
+        .activity-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-secondary);
+            border: 1.5px solid var(--primary-bg);
+            font-weight: 500;
+        }
+        
+        .activity-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+        
+        /* Profile Section */
+        .profile-container {
+            padding: 16px;
+        }
+        
+        .profile-header {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        
+        .profile-pic {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: var(--story-gradient);
+            padding: 3.5px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        
+        .profile-pic:active {
+            transform: scale(0.95);
+        }
+        
+        .profile-pic-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: var(--text-secondary);
+            border: 3px solid var(--primary-bg);
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+        
+        .stat:active {
+            background-color: var(--secondary-bg);
+            transform: scale(0.95);
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            font-size: 17px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .profile-info {
+            margin-bottom: 16px;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+        
+        .profile-bio {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        
+        .profile-website {
+            font-size: 14px;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .edit-profile {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .share-profile, .contact {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            max-width: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+        
+        .profile-highlights {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 14px;
+            scrollbar-width: none;
+        }
+        
+        .profile-highlights::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .highlight {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            user-select: none;
+        }
+        
+        .highlight:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+        
+        .highlight-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--story-gradient);
+            padding: 2.5px;
+            margin-bottom: 6px;
+        }
+        
+        .highlight-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--text-secondary);
+            border: 2.5px solid var(--primary-bg);
+        }
+        
+        .highlight-name {
+            font-size: 12px;
+            color: var(--text-primary);
+            max-width: 72px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 400;
+        }
+        
+        .profile-tabs {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+        
+        .profile-tab {
+            padding: 18px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+        }
+        
+        .profile-tab:active {
+            opacity: 0.7;
+        }
+        
+        .profile-tab.active {
+            color: var(--text-primary);
+        }
+        
+        .profile-tab.active::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--text-primary);
+        }
+        
+        .profile-tab i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .profile-posts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+        }
+        
+        .profile-post {
+            aspect-ratio: 1/1;
+            background-color: var(--secondary-bg);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+        
+        .profile-post:active {
+            transform: scale(0.98);
+            filter: brightness(0.9);
+        }
+        
+        /* Create Post Section */
+        .create-container {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .create-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .create-option {
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .create-option:active {
+            transform: scale(0.95);
+            background: var(--secondary-bg);
+        }
+        
+        .create-icon {
+            font-size: 32px;
+            color: var(--accent-color);
+        }
+        
+        .create-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .recent-photos {
+            margin-top: 30px;
+        }
+        
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-top: 16px;
+        }
+        
+        /* Direct Messages Section */
+        .direct-container {
+            padding: 16px;
+        }
+        
+        .direct-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .direct-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .new-message {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .conversations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+        }
+        
+        .conversation-item:active {
+            background: var(--secondary-bg);
+        }
+        
+        .conversation-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--story-gradient);
+            padding: 2.5px;
+            flex-shrink: 0;
+        }
+        
+        .conversation-avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-secondary);
+            border: 2px solid var(--primary-bg);
+        }
+        
+        .conversation-info {
+            flex: 1;
+        }
+        
+        .conversation-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .conversation-preview {
+            font-size: 14px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .conversation-time {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        /* Like Animation */
+        .like-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 90px;
+            color: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(0,0,0,0.3);
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.2));
+        }
+        
+        .like-heart.animate {
+            animation: heartBurst 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes heartBurst {
+            0% { 
+                transform: translate(-50%, -50%) scale(0); 
+                opacity: 0; 
+            }
+            15% { 
+                transform: translate(-50%, -50%) scale(1.3); 
+                opacity: 0.9; 
+            }
+            30% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 1; 
+            }
+            70% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                opacity: 0; 
+            }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 14px;
+            z-index: 1001;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            font-weight: 500;
+            max-width: 80%;
+            text-align: center;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--modal-bg);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: var(--primary-bg);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            overflow: hidden;
+            animation: modalAppear 0.3s ease-out;
+        }
+        
+        @keyframes modalAppear {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .modal-option {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .modal-option:hover {
+            background-color: var(--secondary-bg);
+        }
+        
+        .modal-option.cancel {
+            font-weight: 600;
+            border-bottom: none;
+        }
+        
+        .modal-option.delete {
+            color: var(--like-color);
+            font-weight: 600;
+        }
+        
+        /* Settings Modal */
+        .settings-modal {
+            max-width: 500px;
+        }
+        
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 16px;
+            }
+            
+            .profile-stats {
+                justify-content: space-around;
+                width: 100%;
+            }
+            
+            .profile-actions {
+                width: 100%;
+            }
+            
+            .create-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Selection */
+        ::selection {
+            background: var(--accent-color);
+            color: white;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Header -->
+    <header>
+        <div class="logo" id="logo">Instagram</div>
+        <div class="header-icons">
+            <i class="far fa-moon" id="theme-toggle"></i>
+            <i class="far fa-heart" id="activity-icon"></i>
+            <i class="fab fa-facebook-messenger" id="direct-icon"></i>
+        </div>
+    </header>
+    
+    <!-- Stories -->
+    <div class="stories-container">
+        <div class="stories-scroll">
+            <div class="story-item" data-story="your-story">
+                <div class="story-avatar">
+                    <div class="story-avatar-inner">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="add-story">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+                <div class="story-username">Seu story</div>
+            </div>
+            <div class="story-item" data-story="samsung">
+                <div class="story-avatar">
+                    <div class="story-avatar-inner">S</div>
+                </div>
+                <div class="story-username">samsung</div>
+            </div>
+            <div class="story-item" data-story="gwang">
+                <div class="story-avatar">
+                    <div class="story-avatar-inner">G</div>
+                </div>
+                <div class="story-username">gwang.gat</div>
+            </div>
+            <div class="story-item" data-story="chamao">
+                <div class="story-avatar">
+                    <div class="story-avatar-inner">C</div>
+                </div>
+                <div class="story-username">chamao.kan</div>
+            </div>
+            <div class="story-item" data-story="kroma">
+                <div class="story-avatar">
+                    <div class="story-avatar-inner">K</div>
+                </div>
+                <div class="story-username">kroma.ma</div>
+            </div>
+            <div class="story-item" data-story="sion">
+                <div class="story-avatar">
+                    <div class="story-avatar-inner">S</div>
+                </div>
+                <div class="story-username">sion</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feed Section -->
+    <section id="feed" class="active-section">
+        <div class="feed-container">
+            <!-- Post Samsung -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-user">
+                        <div class="user-avatar">
+                            <div class="user-avatar-inner">S</div>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">Samsung</div>
+                            <div class="post-location">Seul, Coréia do Sul</div>
+                        </div>
+                    </div>
+                    <div class="post-options" data-post="samsung">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="post-image">
+                    <div class="like-heart"><i class="fas fa-heart"></i></div>
+                </div>
+                <div class="post-actions">
+                    <div class="action-icons">
+                        <i class="far fa-heart" id="like-btn" data-post="samsung"></i>
+                        <i class="far fa-comment" id="comment-btn"></i>
+                        <i class="far fa-paper-plane" id="share-btn"></i>
+                    </div>
+                    <i class="far fa-bookmark" id="save-btn" data-post="samsung"></i>
+                </div>
+                <div class="post-info">
+                    <div class="likes">
+                        <span class="likes-count">1.247 curtidas</span>
+                    </div>
+                    <div class="post-description">
+                        <strong>Samsung</strong> Pierre, thecomet
+                    </div>
+                    <div class="post-description">
+                        D-portable portable (d-commissioner)
+                    </div>
+                    <div class="post-description">
+                        On seulement 10 minutes et on a obtenu d'erreur.
+                    </div>
+                    <div class="post-description">
+                        Maison: Résorations frissures avantages, mais aucunes le sont.
+                    </div>
+                    <div class="comments">Ver todos os 124 comentários</div>
+                    <div class="timestamp">há 1 hora</div>
+                </div>
+                <div class="add-comment">
+                    <input type="text" class="comment-input" placeholder="Adicione um comentário...">
+                    <div class="post-comment">Publicar</div>
+                </div>
+            </div>
+            
+            <!-- Post exemplo adicional -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-user">
+                        <div class="user-avatar">
+                            <div class="user-avatar-inner">G</div>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">gwang.gat</div>
+                            <div class="post-location">Seul, Coréia do Sul</div>
+                        </div>
+                    </div>
+                    <div class="post-options" data-post="gwang">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="post-image">
+                    <div class="like-heart"><i class="fas fa-heart"></i></div>
+                </div>
+                <div class="post-actions">
+                    <div class="action-icons">
+                        <i class="far fa-heart" data-post="gwang"></i>
+                        <i class="far fa-comment"></i>
+                        <i class="far fa-paper-plane"></i>
+                    </div>
+                    <i class="far fa-bookmark" data-post="gwang"></i>
+                </div>
+                <div class="post-info">
+                    <div class="likes">
+                        <span class="likes-count">892 curtidas</span>
+                    </div>
+                    <div class="post-description">
+                        <strong>gwang.gat</strong> Beautiful day in Seoul! 🇰🇷
+                    </div>
+                    <div class="post-tags">#seoul #korea #travel #photography</div>
+                    <div class="comments">Ver todos os 42 comentários</div>
+                    <div class="timestamp">há 3 horas</div>
+                </div>
+                <div class="add-comment">
+                    <input type="text" class="comment-input" placeholder="Adicione um comentário...">
+                    <div class="post-comment">Publicar</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Search Section -->
+    <section id="search" class="search-section">
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Pesquisar">
+            </div>
+            
+            <div class="search-categories">
+                <div class="search-category active">Tudo</div>
+                <div class="search-category">Contas</div>
+                <div class="search-category">Tags</div>
+                <div class="search-category">Locais</div>
+            </div>
+            
+            <div class="section-title">Sugestões para você</div>
+            
+            <div class="suggested-users">
+                <div class="user-suggestion">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">G</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>gwang.gat</strong>
+                        <div>Seguido por samsung</div>
+                    </div>
+                    <button class="follow-btn">Seguir</button>
+                </div>
+                
+                <div class="user-suggestion">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">C</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>chamao.kan</strong>
+                        <div>Seguido por gwang.gat</div>
+                    </div>
+                    <button class="follow-btn">Seguir</button>
+                </div>
+                
+                <div class="user-suggestion">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">K</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>kroma.ma</strong>
+                        <div>Conta sugerida</div>
+                    </div>
+                    <button class="follow-btn">Seguir</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Create Post Section -->
+    <section id="create" class="create-section">
+        <div class="create-container">
+            <div class="create-options">
+                <div class="create-option" id="create-post">
+                    <div class="create-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="create-text">Post</div>
+                </div>
+                
+                <div class="create-option" id="create-story">
+                    <div class="create-icon">
+                        <i class="fas fa-circle-plus"></i>
+                    </div>
+                    <div class="create-text">Story</div>
+                </div>
+                
+                <div class="create-option" id="create-reel">
+                    <div class="create-icon">
+                        <i class="fas fa-clapperboard"></i>
+                    </div>
+                    <div class="create-text">Reel</div>
+                </div>
+                
+                <div class="create-option" id="create-live">
+                    <div class="create-icon">
+                        <i class="fas fa-tower-broadcast"></i>
+                    </div>
+                    <div class="create-text">Live</div>
+                </div>
+            </div>
+            
+            <div class="section-title">Fotos recentes</div>
+            
+            <div class="photos-grid">
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Activity Section -->
+    <section id="activity" class="activity-section">
+        <div class="activity-container">
+            <div class="activity-tabs">
+                <div class="activity-tab active">Seguindo</div>
+                <div class="activity-tab">Você</div>
+            </div>
+            
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">G</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>gwang.gat</strong> curtiu sua publicação.
+                    </div>
+                    <div class="activity-time">5 min</div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">C</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>chamao.kan</strong> começou a seguir você.
+                    </div>
+                    <div class="activity-time">1 h</div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">S</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>samsung</strong> mencionou você em um comentário.
+                    </div>
+                    <div class="activity-time">3 h</div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-avatar">
+                        <div class="activity-avatar-inner">K</div>
+                    </div>
+                    <div class="activity-text">
+                        <strong>kroma.ma</strong> compartilhou sua publicação.
+                    </div>
+                    <div class="activity-time">5 h</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Direct Messages Section -->
+    <section id="direct" class="direct-section">
+        <div class="direct-container">
+            <div class="direct-header">
+                <div class="direct-title">Mensagens</div>
+                <button class="new-message">Nova mensagem</button>
+            </div>
+            
+            <div class="conversations-list">
+                <div class="conversation-item">
+                    <div class="conversation-avatar">
+                        <div class="conversation-avatar-inner">S</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">samsung</div>
+                        <div class="conversation-preview">Obrigado pelo feedback!</div>
+                    </div>
+                    <div class="conversation-time">2h</div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="conversation-avatar">
+                        <div class="conversation-avatar-inner">G</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">gwang.gat</div>
+                        <div class="conversation-preview">Vamos nos encontrar amanhã?</div>
+                    </div>
+                    <div class="conversation-time">5h</div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="conversation-avatar">
+                        <div class="conversation-avatar-inner">C</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">chamao.kan</div>
+                        <div class="conversation-preview">Gostei da sua última foto!</div>
+                    </div>
+                    <div class="conversation-time">1d</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Profile Section -->
+    <section id="profile" class="profile-section">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-pic" id="profile-pic">
+                    <div class="profile-pic-inner">
+                        <i class="far fa-user"></i>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="profile-stats">
+                        <div class="stat" id="posts-stat">
+                            <div class="stat-value">54</div>
+                            <div class="stat-label">Posts</div>
+                        </div>
+                        <div class="stat" id="followers-stat">
+                            <div class="stat-value">852</div>
+                            <div class="stat-label">Seguidores</div>
+                        </div>
+                        <div class="stat" id="following-stat">
+                            <div class="stat-value">756</div>
+                            <div class="stat-label">Seguindo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="profile-name">seu_usuario</div>
+                <div class="profile-bio">Digital creator • Photography enthusiast</div>
+                <div class="profile-website">meusite.com</div>
+            </div>
+            
+            <div class="profile-actions">
+                <div class="action-btn edit-profile" id="edit-profile">Editar perfil</div>
+                <div class="action-btn share-profile" id="share-profile">
+                    <i class="far fa-share-square"></i>
+                </div>
+            </div>
+            
+            <div class="profile-highlights">
+                <div class="highlight" id="travel-highlight">
+                    <div class="highlight-circle">
+                        <div class="highlight-inner">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <div class="highlight-name">Favoritos</div>
+                </div>
+                <div class="highlight" id="nature-highlight">
+                    <div class="highlight-circle">
+                        <div class="highlight-inner">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="highlight-name">Fotos</div>
+                </div>
+                <div class="highlight" id="hikes-highlight">
+                    <div class="highlight-circle">
+                        <div class="highlight-inner">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                    </div>
+                    <div class="highlight-name">Lugares</div>
+                </div>
+                <div class="highlight" id="new-highlight">
+                    <div class="highlight-circle">
+                        <div class="highlight-inner">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                    <div class="highlight-name">Novo</div>
+                </div>
+            </div>
+            
+            <div class="profile-tabs">
+                <div class="profile-tab active">
+                    <i class="fas fa-table"></i>
+                </div>
+                <div class="profile-tab">
+                    <i class="far fa-id-badge"></i>
+                </div>
+                <div class="profile-tab">
+                    <i class="far fa-bookmark"></i>
+                </div>
+            </div>
+            
+            <div class="profile-posts">
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+                <div class="profile-post"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <i class="fas fa-home nav-icon active" data-section="feed"></i>
+        <i class="fas fa-search nav-icon" data-section="search"></i>
+        <i class="far fa-plus-square nav-icon" data-section="create"></i>
+        <i class="far fa-heart nav-icon" data-section="activity">
+            <div class="nav-notification"></div>
+        </i>
+        <i class="far fa-user nav-icon" data-section="profile"></i>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="post-options-modal">
+        <div class="modal-content">
+            <div class="modal-option delete">Denunciar</div>
+            <div class="modal-option delete">Deixar de seguir</div>
+            <div class="modal-option">Copiar link</div>
+            <div class="modal-option">Compartilhar em</div>
+            <div class="modal-option">Incorporar</div>
+            <div class="modal-option cancel">Cancelar</div>
+        </div>
+    </div>
+    
+    <div class="modal" id="settings-modal">
+        <div class="modal-content settings-modal">
+            <div class="modal-header">Configurações</div>
+            <div class="settings-option">
+                <span>Modo Escuro</span>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-option">
+                <span>Notificações</span>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-option">
+                <span>Conta privada</span>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="modal-option cancel">Fechar</div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Estado da aplicação
+        let currentSection = 'feed';
+        let likedPosts = new Set();
+        let savedPosts = new Set();
+        let followedUsers = new Set();
+        let currentTheme = 'light';
+        
+        // Elementos DOM
+        const body = document.body;
+        const navIcons = document.querySelectorAll('.nav-icon');
+        const sections = document.querySelectorAll('section');
+        const themeToggle = document.getElementById('theme-toggle');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const activityIcon = document.getElementById('activity-icon');
+        const directIcon = document.getElementById('direct-icon');
+        const logo = document.getElementById('logo');
+        const toast = document.getElementById('toast');
+        const postOptionsModal = document.getElementById('post-options-modal');
+        const settingsModal = document.getElementById('settings-modal');
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar tema
+            const savedTheme = localStorage.getItem('instagram-theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+            
+            // Configurar double tap para curtir
+            document.querySelectorAll('.post-image').forEach(image => {
+                let lastTap = 0;
+                image.addEventListener('touchend', function(e) {
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    
+                    if (tapLength < 500 && tapLength > 0) {
+                        handleDoubleTap(this);
+                        e.preventDefault();
+                    }
+                    lastTap = currentTime;
+                });
+                
+                image.addEventListener('dblclick', function() {
+                    handleDoubleTap(this);
+                });
+            });
+            
+            // Configurar comentários
+            document.querySelectorAll('.comment-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const postComment = this.nextElementSibling;
+                    if (this.value.trim() !== '') {
+                        postComment.classList.add('active');
+                    } else {
+                        postComment.classList.remove('active');
+                    }
+                });
+                
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const postComment = this.nextElementSibling;
+                        if (this.value.trim() !== '') {
+                            postComment.click();
+                        }
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.post-comment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const commentInput = this.previousElementSibling;
+                    if (commentInput.value.trim() !== '') {
+                        showToast('Comentário publicado ✓');
+                        commentInput.value = '';
+                        this.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Configurar botões de seguir
+            document.querySelectorAll('.follow-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const username = this.closest('.user-suggestion').querySelector('strong').textContent;
+                    
+                    if (this.classList.contains('following')) {
+                        this.classList.remove('following');
+                        this.textContent = 'Seguir';
+                        followedUsers.delete(username);
+                        showToast(`Deixou de seguir @${username}`);
+                    } else {
+                        this.classList.add('following');
+                        this.textContent = 'Seguindo';
+                        followedUsers.add(username);
+                        showToast(`Agora você segue @${username}`);
+                    }
+                });
+            });
+            
+            // Configurar categorias de busca
+            document.querySelectorAll('.search-category').forEach(category => {
+                category.addEventListener('click', function() {
+                    document.querySelectorAll('.search-category').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    showToast(`Buscando em: ${this.textContent}`);
+                });
+            });
+            
+            // Configurar opções de criação
+            document.querySelectorAll('.create-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const optionType = this.id.replace('create-', '');
+                    showToast(`Criar ${optionType}`);
+                });
+            });
+        });
+        
+        // Navegação
+        navIcons.forEach(icon => {
+            icon.addEventListener('click', function() {
+                const sectionId = this.getAttribute('data-section');
+                if (sectionId && sectionId !== currentSection) {
+                    switchSection(sectionId);
+                }
+            });
+        });
+        
+        function switchSection(sectionId) {
+            // Esconder seções atuais
+            sections.forEach(section => {
+                section.classList.remove('active-section');
+            });
+            
+            // Mostrar nova seção
+            document.getElementById(sectionId).classList.add('active-section');
+            
+            // Atualizar ícones
+            navIcons.forEach(icon => {
+                icon.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            
+            currentSection = sectionId;
+        }
+        
+        // Tema
+        themeToggle.addEventListener('click', function() {
+            toggleTheme();
+        });
+        
+        darkModeToggle.addEventListener('change', function() {
+            toggleTheme();
+        });
+        
+        function toggleTheme() {
+            if (currentTheme === 'light') {
+                setTheme('dark');
+            } else {
+                setTheme('light');
+            }
+        }
+        
+        function setTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            currentTheme = theme;
+            
+            if (theme === 'dark') {
+                themeToggle.classList.remove('fa-moon');
+                themeToggle.classList.add('fa-sun');
+                if (darkModeToggle) darkModeToggle.checked = true;
+            } else {
+                themeToggle.classList.remove('fa-sun');
+                themeToggle.classList.add('fa-moon');
+                if (darkModeToggle) darkModeToggle.checked = false;
+            }
+            
+            localStorage.setItem('instagram-theme', theme);
+        }
+        
+        // Interações de posts
+        document.querySelectorAll('.action-icons .fa-heart').forEach(button => {
+            button.addEventListener('click', function() {
+                toggleLike(this);
+            });
+        });
+        
+        document.querySelectorAll('.fa-bookmark').forEach(button => {
+            button.addEventListener('click', function() {
+                toggleSave(this);
+            });
+        });
+        
+        function toggleLike(button) {
+            const postCard = button.closest('.post-card');
+            const postId = postCard.querySelector('.user-name').textContent;
+            
+            if (likedPosts.has(postId)) {
+                button.classList.remove('fas');
+                button.classList.add('far');
+                button.style.color = '';
+                likedPosts.delete(postId);
+            } else {
+                button.classList.remove('far');
+                button.classList.add('fas');
+                button.style.color = 'var(--like-color)';
+                likedPosts.add(postId);
+                showToast('Curtido ✓');
+            }
+        }
+        
+        function toggleSave(button) {
+            const postCard = button.closest('.post-card');
+            const postId = postCard.querySelector('.user-name').textContent;
+            
+            if (savedPosts.has(postId)) {
+                button.classList.remove('fas');
+                button.classList.add('far');
+                button.style.color = '';
+                savedPosts.delete(postId);
+                showToast('Removido dos salvos');
+            } else {
+                button.classList.remove('far');
+                button.classList.add('fas');
+                button.style.color = 'var(--text-primary)';
+                savedPosts.add(postId);
+                showToast('Salvo ✓');
+            }
+        }
+        
+        function handleDoubleTap(image) {
+            const heart = image.querySelector('.like-heart');
+            const likeIcon = image.closest('.post-card').querySelector('.action-icons .fa-heart');
+            const postId = image.closest('.post-card').querySelector('.user-name').textContent;
+            
+            if (!likedPosts.has(postId)) {
+                likeIcon.classList.remove('far');
+                likeIcon.classList.add('fas');
+                likeIcon.style.color = 'var(--like-color)';
+                heart.classList.add('animate');
+                
+                setTimeout(() => {
+                    heart.classList.remove('animate');
+                }, 800);
+                
+                likedPosts.add(postId);
+                showToast('Curtido ✓');
+            }
+        }
+        
+        // Stories
+        document.querySelectorAll('.story-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const storyType = this.getAttribute('data-story');
+                if (storyType === 'your-story') {
+                    showToast('Criar novo story');
+                } else {
+                    const username = this.querySelector('.story-username').textContent;
+                    showToast(`Story de @${username}`);
+                    this.querySelector('.story-avatar').classList.add('seen');
+                }
+            });
+        });
+        
+        // Highlights
+        document.querySelectorAll('.highlight').forEach(highlight => {
+            highlight.addEventListener('click', function() {
+                const highlightName = this.querySelector('.highlight-name').textContent;
+                if (highlightName === 'Novo') {
+                    showToast('Criar novo destaque');
+                } else {
+                    showToast(`Abrindo ${highlightName}`);
+                }
+            });
+        });
+        
+        // Perfil
+        document.getElementById('profile-pic').addEventListener('click', function() {
+            showToast('Seu perfil');
+        });
+        
+        document.querySelectorAll('.stat').forEach(stat => {
+            stat.addEventListener('click', function() {
+                const statType = this.id;
+                const value = this.querySelector('.stat-value').textContent;
+                const label = this.querySelector('.stat-label').textContent;
+                showToast(`${value} ${label.toLowerCase()}`);
+            });
+        });
+        
+        document.querySelectorAll('.profile-tab, .activity-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const parent = this.closest('.activity-tabs, .profile-tabs');
+                if (parent) {
+                    parent.querySelectorAll('.activity-tab, .profile-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                }
+                this.classList.add('active');
+                
+                if (this.classList.contains('profile-tab')) {
+                    const tabName = this.querySelector('i').className.includes('table') ? 'Publicações' : 
+                                  this.querySelector('i').className.includes('id-badge') ? 'Marcações' : 'Salvos';
+                    showToast(tabName);
+                }
+            });
+        });
+        
+        // Modais
+        document.querySelectorAll('.post-options').forEach(option => {
+            option.addEventListener('click', function() {
+                postOptionsModal.style.display = 'flex';
+            });
+        });
+        
+        logo.addEventListener('click', function() {
+            settingsModal.style.display = 'flex';
+        });
+        
+        document.querySelectorAll('.modal-option.cancel').forEach(option => {
+            option.addEventListener('click', function() {
+                postOptionsModal.style.display = 'none';
+                settingsModal.style.display = 'none';
+            });
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                postOptionsModal.style.display = 'none';
+                settingsModal.style.display = 'none';
+            }
+        });
+        
+        // Atividade e Direct
+        activityIcon.addEventListener('click', function() {
+            switchSection('activity');
+        });
+        
+        directIcon.addEventListener('click', function() {
+            switchSection('direct');
+        });
+        
+        // Conversas
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const username = this.querySelector('.conversation-name').textContent;
+                showToast(`Abrindo conversa com @${username}`);
+            });
+        });
+        
+        document.querySelector('.new-message').addEventListener('click', function() {
+            showToast('Nova mensagem');
+        });
+        
+        // Toast notification
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Simular outras interações
+        document.getElementById('edit-profile').addEventListener('click', function() {
+            showToast('Editar perfil');
+        });
+        
+        document.getElementById('share-profile').addEventListener('click', function() {
+            showToast('Compartilhar perfil');
+        });
+        
+        document.querySelectorAll('.fa-comment').forEach(btn => {
+            btn.addEventListener('click', function() {
+                showToast('Comentar');
+            });
+        });
+        
+        document.querySelectorAll('.fa-paper-plane').forEach(btn => {
+            btn.addEventListener('click', function() {
+                showToast('Compartilhar publicação');
+            });
+        });
+    </script>
+</body>
+</html>
